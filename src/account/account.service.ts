@@ -6,6 +6,7 @@ import { Account, AccountRole } from 'src/account/entities/account.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Athlete } from 'src/athlete/entities/athlete.entity';
+import { Organization } from '@src/organization/entities/organization.entity';
 @Injectable()
 export class AccountService {
 	constructor(
@@ -13,6 +14,8 @@ export class AccountService {
 		private readonly accountRepository: Repository<Account>,
 		@InjectRepository(Athlete)
 		private readonly athleteRepository: Repository<Athlete>,
+		@InjectRepository(Organization)
+		private readonly organizationRepository: Repository<Organization>,
 	) {}
 	async create(createAccountDto: CreateAccountDto): Promise<Account> {
 		const { email, username, password, role } = createAccountDto;
@@ -33,6 +36,7 @@ export class AccountService {
 			await this.athleteRepository.save(athlete);
 			console.log(this.athleteRepository);
 		}
+
 		return account;
 	}
 
@@ -78,9 +82,22 @@ export class AccountService {
 					},
 				},
 			});
-			console.log('related athlete', relatedAthlete);
 			if (relatedAthlete) {
 				await this.athleteRepository.remove(relatedAthlete);
+			}
+		}
+		if (existingAccount.role === AccountRole.ORGANIZATION) {
+			const relatedOrganization =
+				await this.organizationRepository.findOne({
+					where: {
+						account: {
+							id: existingAccount.id,
+						},
+					},
+				});
+
+			if (relatedOrganization) {
+				await this.organizationRepository.remove(relatedOrganization);
 			}
 		}
 		return await this.accountRepository.remove(existingAccount);

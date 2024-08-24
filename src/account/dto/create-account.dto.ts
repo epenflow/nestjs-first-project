@@ -9,12 +9,13 @@ import {
 	Matches,
 	Validate,
 } from 'class-validator';
+import { UniqueEmailValidator } from '@src/account/dto/unique-email.validator';
 
 export class CreateAccountDto {
 	@IsNotEmpty()
 	@IsString()
 	@Length(5, 50)
-	@Matches(/^[a-z][a-z0-9]*$/, {
+	@Matches(/^[a-z][a-z0-9_]*$/, {
 		message: `Username should start with a lowercase letter and contain only lowercase letters and digits`,
 	})
 	@Validate(UniqueUsernameValidator)
@@ -25,6 +26,7 @@ export class CreateAccountDto {
 	role: AccountRole;
 
 	@IsNotEmpty()
+	@Validate(UniqueEmailValidator)
 	@IsEmail()
 	@Transform(({ value }) => value.toLowerCase())
 	email: string;

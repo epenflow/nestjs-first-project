@@ -12,9 +12,15 @@ export class AthleteService {
 		private readonly athleteRepository: Repository<Athlete>,
 	) {}
 	async create(createAthleteDto: CreateAthleteDto): Promise<Athlete> {
-		const athlete: Athlete =
-			this.athleteRepository.create(createAthleteDto);
-		return athlete;
+		const { accountId, fullname } = createAthleteDto;
+		const athlete: Athlete = this.athleteRepository.create({
+			account: {
+				id: accountId,
+			},
+			fullname,
+			dob: new Date('1990-01-01'),
+		});
+		return await this.athleteRepository.save(athlete);
 	}
 
 	async findAll(): Promise<Athlete[]> {

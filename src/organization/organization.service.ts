@@ -3,14 +3,13 @@ import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { Organization } from '@src/organization/entities/organization.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class OrganizationService {
 	constructor(
 		@InjectRepository(Organization)
 		private readonly organizationRepository: Repository<Organization>,
-		private readonly entityManager: EntityManager,
 	) {}
 	async create(
 		createOrganizationDto: CreateOrganizationDto,

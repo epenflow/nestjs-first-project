@@ -1,29 +1,28 @@
-// unique-username.validator.ts
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Account } from '@src/account/entities/account.entity';
 import {
 	ValidatorConstraint,
 	ValidatorConstraintInterface,
 } from 'class-validator';
 import { Repository } from 'typeorm';
-import { Account } from 'src/account/entities/account.entity';
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class UniqueUsernameValidator implements ValidatorConstraintInterface {
+export class UniqueEmailValidator implements ValidatorConstraintInterface {
 	constructor(
 		@InjectRepository(Account)
 		private readonly accountRepository: Repository<Account>,
 	) {}
-
-	async validate(username: string): Promise<boolean> {
+	async validate(email: string): Promise<boolean> {
 		const account = await this.accountRepository.findOne({
-			where: { username },
+			where: {
+				email,
+			},
 		});
-		return !account; // Return true if username does not exist
+		return !account;
 	}
-
-	defaultMessage() {
-		return 'Username ($value) already exists. Choose another username.';
+	defaultMessage(): string {
+		return 'Email ($value) already exist. Choose another email.';
 	}
 }

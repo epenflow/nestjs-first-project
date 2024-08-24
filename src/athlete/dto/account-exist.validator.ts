@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Account } from '@src/account/entities/account.entity';
-import { Organization } from '@src/organization/entities/organization.entity';
+import { Athlete } from '@src/athlete/entities/athlete.entity';
 import {
 	isUUID,
 	ValidatorConstraint,
@@ -13,24 +13,28 @@ import { Repository } from 'typeorm';
 export class AccountExistValidator implements ValidatorConstraintInterface {
 	private message: string;
 	constructor(
+		@InjectRepository(Athlete)
+		private readonly athleteRepository: Repository<Athlete>,
 		@InjectRepository(Account)
 		private readonly accountRepository: Repository<Account>,
-		@InjectRepository(Organization)
-		private readonly organizationRepository: Repository<Organization>,
 	) {}
 	async validate(accountId: string): Promise<boolean> {
 		if (!isUUID(accountId)) {
 			this.message = 'Invalid UUID format';
 			return false;
 		}
-		const existingOrganizationByAccountId =
-			await this.organizationRepository.findOne({
+		console.log('validate', accountId);
+		const existingAthleteByAccountId = await this.athleteRepository.findOne(
+			{
 				where: {
-					account: { id: accountId },
+					account: {
+						id: accountId,
+					},
 				},
-			});
-		if (existingOrganizationByAccountId) {
-			this.message = 'Account already exists in the organization';
+			},
+		);
+		if (existingAthleteByAccountId) {
+			this.message = 'Account already exist in the athlete';
 			return false;
 		}
 		const account = await this.accountRepository.findOne({
@@ -41,13 +45,13 @@ export class AccountExistValidator implements ValidatorConstraintInterface {
 		if (!account) {
 			this.message = `Account doesn't exist`;
 			return false;
-		} else if (account.role !== 'ORGANIZATION') {
+		} else if (account.role !== 'ATHLETE') {
 			this.message = `Account doesn't support`;
 			return false;
 		}
 		return true;
 	}
-	defaultMessage?(): string {
+	defaultMessage(): string {
 		return this.message;
 	}
 }
