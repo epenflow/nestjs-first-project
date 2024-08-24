@@ -2,11 +2,12 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Account, AccountRole } from 'src/account/entities/account.entity';
+import { Account } from 'src/account/entities/account.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Athlete } from 'src/athlete/entities/athlete.entity';
 import { Organization } from '@src/organization/entities/organization.entity';
+import { AccountRole } from '@src/libs/account-role';
 @Injectable()
 export class AccountService {
 	constructor(
@@ -18,7 +19,9 @@ export class AccountService {
 		private readonly organizationRepository: Repository<Organization>,
 	) {}
 	async create(createAccountDto: CreateAccountDto): Promise<Account> {
+		console.log('DTO received:', createAccountDto);
 		const { email, username, password, role } = createAccountDto;
+
 		const saltOrRounds = 12;
 		const hashedPassword = await bcrypt.hash(password, saltOrRounds);
 		const account: Account = await this.accountRepository.save({
@@ -27,6 +30,7 @@ export class AccountService {
 			password: hashedPassword,
 			role,
 		});
+		console.log('create', role);
 		if (account.role === AccountRole.ATHLETE) {
 			const athlete = this.athleteRepository.create({
 				fullname: account.username,

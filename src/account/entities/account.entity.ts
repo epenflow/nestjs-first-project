@@ -1,3 +1,4 @@
+import { AccountRole } from '@src/libs/account-role';
 import { Organization } from '@src/organization/entities/organization.entity';
 import { Athlete } from 'src/athlete/entities/athlete.entity';
 import {
@@ -8,11 +9,7 @@ import {
 	UpdateDateColumn,
 	OneToOne,
 } from 'typeorm';
-export enum AccountRole {
-	ADMIN = 'ADMIN',
-	ORGANIZATION = 'ORGANIZATION',
-	ATHLETE = 'ATHLETE',
-}
+
 @Entity()
 export class Account {
 	@PrimaryGeneratedColumn('uuid')
@@ -39,7 +36,7 @@ export class Account {
 	@Column({
 		type: 'enum',
 		enum: AccountRole,
-		default: AccountRole.ATHLETE,
+		nullable: true,
 	})
 	role: AccountRole;
 

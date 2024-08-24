@@ -37,7 +37,7 @@ export class Athlete {
 	@Column({
 		type: 'enum',
 		enum: CountryCodes,
-		default: CountryCodes.ID,
+		nullable: true,
 	})
 	nationality: CountryCodes;
 

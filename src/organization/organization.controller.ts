@@ -59,20 +59,68 @@ export class OrganizationController {
 	}
 
 	@Get(':id')
-	findOne(@Param('id') id: string) {
-		return this.organizationService.findOne(+id);
+	async findOne(
+		@Param('id') id: string,
+	): Promise<ResultPromise<Organization>> {
+		try {
+			const data: Organization =
+				await this.organizationService.findOne(id);
+			return {
+				success: true,
+				data,
+				message: 'Fetched Organization',
+			};
+		} catch (error) {
+			return {
+				success: false,
+				data: null,
+				message: error,
+			};
+		}
 	}
 
 	@Patch(':id')
-	update(
+	async update(
 		@Param('id') id: string,
 		@Body() updateOrganizationDto: UpdateOrganizationDto,
-	) {
-		return this.organizationService.update(+id, updateOrganizationDto);
+	): Promise<ResultPromise<Organization>> {
+		try {
+			const data: Organization = await this.organizationService.update(
+				id,
+				updateOrganizationDto,
+			);
+			return {
+				success: true,
+				data,
+				message: 'Organization Update',
+			};
+		} catch (error) {
+			return {
+				success: false,
+				data: null,
+				message: error,
+			};
+		}
 	}
 
 	@Delete(':id')
-	remove(@Param('id') id: string) {
-		return this.organizationService.remove(id);
+	async remove(
+		@Param('id') id: string,
+	): Promise<ResultPromise<Organization>> {
+		try {
+			const data: Organization =
+				await this.organizationService.remove(id);
+			return {
+				success: true,
+				data,
+				message: 'Remove Organization Successfully',
+			};
+		} catch (error) {
+			return {
+				success: false,
+				data: null,
+				message: error,
+			};
+		}
 	}
 }

@@ -41,7 +41,7 @@ export class AccountExistValidator implements ValidatorConstraintInterface {
 		if (!account) {
 			this.message = `Account doesn't exist`;
 			return false;
-		} else if (account.role !== 'ORGANIZATION') {
+		} else if (account.role !== 'Organization') {
 			this.message = `Account doesn't support`;
 			return false;
 		}

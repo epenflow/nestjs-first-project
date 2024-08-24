@@ -4,6 +4,7 @@ import { UpdateAthleteDto } from './dto/update-athlete.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Athlete } from 'src/athlete/entities/athlete.entity';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class AthleteService {
@@ -11,14 +12,28 @@ export class AthleteService {
 		@InjectRepository(Athlete)
 		private readonly athleteRepository: Repository<Athlete>,
 	) {}
+	private async findAthleteById(id: string): Promise<Athlete> {
+		if (!isUUID(id)) {
+			throw new HttpException('Invalid ID', 404);
+		}
+		return await this.athleteRepository.findOneBy({
+			id,
+		});
+	}
+	private isAthleteExist(athlete: Athlete) {
+		if (!athlete) {
+			throw new HttpException('Athlete not found', 404);
+		}
+	}
 	async create(createAthleteDto: CreateAthleteDto): Promise<Athlete> {
-		const { accountId, fullname } = createAthleteDto;
+		const { accountId, fullname, dob, nationality } = createAthleteDto;
 		const athlete: Athlete = this.athleteRepository.create({
 			account: {
 				id: accountId,
 			},
 			fullname,
-			dob: new Date('1990-01-01'),
+			nationality,
+			dob,
 		});
 		return await this.athleteRepository.save(athlete);
 	}
@@ -28,10 +43,8 @@ export class AthleteService {
 	}
 
 	async findOne(id: string): Promise<Athlete> {
-		const athlete: Athlete = await this.athleteRepository.findOneBy({ id });
-		if (!athlete) {
-			throw new HttpException('Athlete not found', 404);
-		}
+		const athlete: Athlete = await this.findAthleteById(id);
+		this.isAthleteExist(athlete);
 		return athlete;
 	}
 
@@ -39,26 +52,18 @@ export class AthleteService {
 		id: string,
 		updateAthleteDto: UpdateAthleteDto,
 	): Promise<Athlete> {
-		const existingAthlete: Athlete = await this.athleteRepository.findOneBy(
-			{ id },
-		);
-		if (!existingAthlete) {
-			throw new HttpException('Athlete not found', 404);
-		}
+		const athlete: Athlete = await this.findAthleteById(id);
+		this.isAthleteExist(athlete);
 		const athleteData: Athlete = this.athleteRepository.merge(
-			existingAthlete,
+			athlete,
 			updateAthleteDto,
 		);
 		return await this.athleteRepository.save(athleteData);
 	}
 
 	async remove(id: string): Promise<Athlete> {
-		const existingAthlete: Athlete = await this.athleteRepository.findOneBy(
-			{ id },
-		);
-		if (!existingAthlete) {
-			throw new HttpException('Athlete not found', 404);
-		}
-		return await this.athleteRepository.remove(existingAthlete);
+		const athlete: Athlete = await this.findAthleteById(id);
+		this.isAthleteExist(athlete);
+		return await this.athleteRepository.remove(athlete);
 	}
 }
