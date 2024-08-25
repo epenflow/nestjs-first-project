@@ -41,7 +41,7 @@ export class CreateAccountDto {
 
 	@Transform(({ value }) => {
 		console.log('Transforming role:', value);
-		return value || AccountRole.ATHLETE;
+		return value !== AccountRole ? AccountRole.ATHLETE : value;
 	})
 	@IsOptional()
 	role: AccountRole;
